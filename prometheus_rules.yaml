@@ -1,37 +1,53 @@
+# Define the API version and kind of resource.
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
+
+# Metadata section identifies the rule group.
 metadata:
-  name: practical-rules
-  namespace: monitoring
+  name: practical-rules                # Name of the PrometheusRule resource.
+  namespace: monitoring                # Namespace where Prometheus is watching for rules.
   labels:
-    prometheus: practical-rules
+    prometheus: practical-rules        # Label to associate this rule with a specific Prometheus instance.
+
 spec:
   groups:
-  - name: node-alerts
+  - name: node-alerts                  # Logical group name for organizing related alerting rules.
     rules:
+
+    # Alert: PodCrashLooping
+    # Detects if any pod has restarted in the last 5 minutes.
     - alert: PodCrashLooping
       expr: increase(kube_pod_container_status_restarts_total[5m]) > 0
-      for: 30s
+      # The 'increase' function checks for restart count increments over a 5-minute window.
+      for: 30s                          # Alert fires only if the condition persists for 30 seconds.
       labels:
-        severity: warning
+        severity: warning              # Severity level—can be used for routing in Alertmanager.
       annotations:
         summary: "Pod {{ $labels.pod }} is restarting"
         description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted in the last 5 minutes"
+        # These annotations provide human-readable context in alert notifications.
 
+    #  Alert: DeploymentDown
+    # Triggers when a deployment has zero available replicas.
     - alert: DeploymentDown
       expr: kube_deployment_status_replicas_available == 0
-      for: 1m
+      # This checks if the deployment is completely unavailable.
+      for: 1m                           # Alert fires if the condition holds for 1 minute.
       labels:
-        severity: critical
+        severity: critical             # Higher severity—indicates a major outage.
       annotations:
         summary: "Deployment {{ $labels.deployment }} is completely down"
         description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has 0 available replicas"
 
+    # Alert: PodHighMemoryUsage
+    # Detects pods using more than 80% of their memory limit.
     - alert: PodHighMemoryUsage
       expr: (container_memory_usage_bytes{container!="",container!="POD"} / container_spec_memory_limit_bytes) > 0.8
-      for: 2m
+      # Filters out infrastructure containers and calculates memory usage ratio.
+      for: 2m                           # Alert fires if high usage persists for 2 minutes.
       labels:
-        severity: warning
+        severity: warning              # Moderate severity—useful for proactive scaling or debugging.
       annotations:
         summary: "Pod {{ $labels.pod }} high memory usage"
         description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is using more than 80% of its memory limit"
+
