@@ -1,20 +1,21 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1 # Specifies the API version for the Deployment resource
+kind: Deployment # Declares this resource as a Deployment
 metadata:
-  name: web-app
-  namespace: alert-test
+  name: web-app # Name of the Deployment
+  namespace: alert-test # Namespace where the Deployment will be created
 spec:
-  replicas: 2
+  replicas: 2 # Number of pod replicas to maintain
   selector:
     matchLabels:
-      app: web-app
+      app: web-app # Label used to match the pod template
   template:
     metadata:
       labels:
-        app: web-app
+        app: web-app # Label applied to the pod for selector matching
     spec:
       containers:
-      - name: nginx
-        image: nginx
+      - name: nginx # Name of the container
+        image: nginx # Uses the official Nginx image to serve HTTP traffic
         ports:
-        - containerPort: 80
+        - containerPort: 80 # Exposes port 80 inside the container for web traffic
+
