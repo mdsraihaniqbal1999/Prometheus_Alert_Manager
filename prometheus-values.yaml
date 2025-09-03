@@ -23,7 +23,7 @@ alertmanager:
   config:
     global:
       resolve_timeout: 5m
-      slack_api_url: "<slack_webhook_api_url>"
+      slack_api_url: "<slack_channel_webhook_url>"
 
     route:
       group_by: ['job']
