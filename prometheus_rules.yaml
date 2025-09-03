@@ -39,15 +39,4 @@ spec:
         summary: "Deployment {{ $labels.deployment }} is completely down"
         description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has 0 available replicas"
 
-    # Alert: PodHighMemoryUsage
-    # Detects pods using more than 80% of their memory limit.
-    - alert: PodHighMemoryUsage
-      expr: (container_memory_usage_bytes{container!="",container!="POD"} / container_spec_memory_limit_bytes) > 0.8
-      # Filters out infrastructure containers and calculates memory usage ratio.
-      for: 2m                           # Alert fires if high usage persists for 2 minutes.
-      labels:
-        severity: warning              # Moderate severity—useful for proactive scaling or debugging.
-      annotations:
-        summary: "Pod {{ $labels.pod }} high memory usage"
-        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is using more than 80% of its memory limit"
 
