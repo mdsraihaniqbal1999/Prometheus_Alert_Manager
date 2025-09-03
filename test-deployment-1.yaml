@@ -1,1 +1,21 @@
+apiVersion: apps/v1 # Specifies the API version for the Deployment resource
+kind: Deployment # Declares this resource as a Deployment
+metadata:
+  name: crash-app # Name of the Deployment
+  namespace: alert-test # Namespace where the Deployment will be created
+spec:
+  replicas: 1 # Number of pod replicas to maintain
+  selector:
+    matchLabels:
+      app: crash-app # Label used to match the pod template
+  template:
+    metadata:
+      labels:
+        app: crash-app # Label applied to the pod for selector matching
+    spec:
+      containers:
+      - name: crash-container # Name of the container
+        image: busybox # Uses the BusyBox image for lightweight shell commands
+        command: ["sh", "-c"] # Executes a shell command
+        args: ["echo 'Starting app...'; sleep 20; echo 'Simulating crash!'; exit 1"] # Simulates a crash after 20 seconds
 
