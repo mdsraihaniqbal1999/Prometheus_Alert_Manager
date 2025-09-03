@@ -1,0 +1,37 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: practical-rules
+  namespace: monitoring
+  labels:
+    prometheus: practical-rules
+spec:
+  groups:
+  - name: node-alerts
+    rules:
+    - alert: PodCrashLooping
+      expr: increase(kube_pod_container_status_restarts_total[5m]) > 0
+      for: 30s
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod {{ $labels.pod }} is restarting"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted in the last 5 minutes"
+
+    - alert: DeploymentDown
+      expr: kube_deployment_status_replicas_available == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Deployment {{ $labels.deployment }} is completely down"
+        description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has 0 available replicas"
+
+    - alert: PodHighMemoryUsage
+      expr: (container_memory_usage_bytes{container!="",container!="POD"} / container_spec_memory_limit_bytes) > 0.8
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod {{ $labels.pod }} high memory usage"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is using more than 80% of its memory limit"
